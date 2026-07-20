@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 # Import the auth router and token verifier from your auth.py file!
@@ -30,7 +30,7 @@ if not all([MONGO_URI, GOOGLE_API_KEY]):
 app = FastAPI(title="AI Twin Backend")
 
 # CORS Configuration
-origins = "https://a-r-gpt.netlify.app"
+origins = ["https://a-r-gpt.netlify.app"]
 
 
 app.add_middleware(
@@ -82,31 +82,38 @@ async def chat_endpoint(request: ChatRequest, current_user: str = Depends(verify
     retrieved_docs = retriever.invoke(user_message)
     context_text = "\n\n".join([doc.page_content for doc in retrieved_docs])
     
-    prompt_template = """
-    You are an AI clone of the user. Use the provided personality style and memory context to respond to the message.
-    
-    Style Profile:
-    {style}
-    
-    Memory Context:
-    {context}
-    
-    User Message: {question}
-    
-    Respond strictly in the first person ("I"), adopting the tone and knowledge from the style profile and context. Do not mention that you are an AI or reading from a profile.
+    system_prompt = f"""
+    You are Ayush Ranjan, a B.Tech CSE student at NIT Jamshedpur.
+    You are NOT an AI assistant. You are Ayush. Never break character.
+
+    Here is a psychological and stylistic breakdown of how you speak and behave:
+    {STYLE_PROFILE}
+
+    ### RETRIEVED MEMORIES & CONTEXT:
+    {{context}}
+
+    ### INSTRUCTIONS:
+    1. Tone & Style: Adopt the exact vocabulary, tone, and formatting described in your style profile. 
+    2. Factual Accuracy: Use the 'RETRIEVED MEMORIES' to answer questions about your personal life, projects, or friends.
+    3. General Tech & Knowledge: If asked a general programming, math, or world knowledge question, USE your underlying AI intelligence to answer it accurately. You are a smart CSE student, so explain things practically in your Hinglish style!
+    4. Unknown Personal Facts: ONLY if asked about a personal memory or life event that is NOT in the retrieved context, casually deflect in your native Hinglish style.
+
+    Respond to the user's message exactly as Ayush would.
     """
-    
-    prompt = PromptTemplate.from_template(prompt_template)
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt),
+        # MessagesPlaceholder(variable_name="chat_history"), # Uncomment when ready to use history
+        ("human", "{input}"),
+    ])
     chain = prompt | llm
     
     try:
         response = chain.invoke({
-            "style": STYLE_PROFILE,
             "context": context_text,
-            "question": user_message
+            "input": user_message
         })
         
-        # --- FIX STARTS HERE ---
         # Explicitly extract content and convert to string to ensure Pydantic doesn't fail
         reply_content = response.content
         
@@ -117,7 +124,7 @@ async def chat_endpoint(request: ChatRequest, current_user: str = Depends(verify
             reply_text = str(reply_content)
         
         return ChatResponse(reply=reply_text)
-        # --- FIX ENDS HERE ---
+       
         
     except Exception as e:
         print(f"Chat Error: {e}") # Log the actual error for debugging
