@@ -52,7 +52,7 @@ embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_a
 vector_store = MongoDBAtlasVectorSearch(collection=vector_collection, embedding=embeddings, index_name="vector_index")
 retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=GOOGLE_API_KEY, temperature=0.7)
+llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.7)
 
 # Load Style Profile
 STYLE_PROFILE = ""
