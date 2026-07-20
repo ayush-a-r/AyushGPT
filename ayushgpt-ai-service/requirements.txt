@@ -6,5 +6,5 @@ langchain-google-genai
 python-jose[cryptography]
 python-multipart
 python-dotenv
-passlib[bcrypt]
 motor
+bcrypt
