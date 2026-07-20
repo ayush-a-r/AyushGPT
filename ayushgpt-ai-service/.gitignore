@@ -1,0 +1,6 @@
+# Privacy Wall
+data/
+*.txt
+*.json
+.env
+__pycache__/

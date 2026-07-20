@@ -13,10 +13,10 @@ from jose import JWTError, jwt
 # LangChain and Database Integrations
 from pymongo import MongoClient
 from langchain_mongodb import MongoDBAtlasVectorSearch
-from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
-
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 # Load environment variables from .env 
 load_dotenv()
 
@@ -79,7 +79,8 @@ client = MongoClient(MONGO_URI)
 vector_collection = client.ayushgpt_db.vectors
 
 # 2. Setup Embeddings
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+#embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+embeddings = GoogleGenerativeAIEmbeddings(model="embedding-001", google_api_key=GOOGLE_API_KEY)
 
 # 3. Initialize MongoDB Vector Search
 vector_store = MongoDBAtlasVectorSearch(
