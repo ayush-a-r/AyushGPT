@@ -7,3 +7,4 @@ langchain-huggingface
 python-jose[cryptography]
 python-multipart
 python-dotenv
+sentence-transformers
