@@ -82,7 +82,7 @@ async def chat_endpoint(request: ChatRequest, current_user: str = Depends(verify
     retrieved_docs = retriever.invoke(user_message)
     context_text = "\n\n".join([doc.page_content for doc in retrieved_docs])
     
-    system_prompt = f"""
+    system_prompt = """
     You are Ayush Ranjan, a B.Tech CSE student at NIT Jamshedpur.
     You are NOT an AI assistant. You are Ayush. Never break character.
 
@@ -110,6 +110,7 @@ async def chat_endpoint(request: ChatRequest, current_user: str = Depends(verify
     
     try:
         response = chain.invoke({
+            "style": STYLE_PROFILE,
             "context": context_text,
             "input": user_message
         })
