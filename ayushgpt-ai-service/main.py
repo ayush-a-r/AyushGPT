@@ -48,10 +48,10 @@ app.include_router(auth_router)
 client = MongoClient(MONGO_URI)
 vector_collection = client.ayushgpt_db.vectors
 
-# Change your existing embedding initialization to this:
 embeddings = GoogleGenerativeAIEmbeddings(
-    model="embedding-001", 
-    google_api_key=GOOGLE_API_KEY
+    model="gemini-embedding-2", 
+    google_api_key=GOOGLE_API_KEY,
+    output_dimensionality=384
 )
 vector_store = MongoDBAtlasVectorSearch(collection=vector_collection, embedding=embeddings, index_name="vector_index")
 retriever = vector_store.as_retriever(search_kwargs={"k": 3})
