@@ -22,11 +22,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
 # --- MONGODB SETUP ---
-# Connects to the URI in your .env file (defaults to local if not found)
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGO_URI")
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
-
-# Creates a database called 'ayushgpt_db' and a collection called 'users'
 db = client.ayushgpt_db
 users_collection = db.users
 
@@ -59,19 +56,16 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
         raise HTTPException(status_code=401, detail="Could not validate credentials")
 
 
-# --- AUTH ENDPOINTS ---
+# --- AUTH ENDPOINTS (PURE JSON) ---
 @router.post("/register")
 async def register(user: AuthUser):
-    # 1. Check if user exists in MongoDB
     existing_user = await users_collection.find_one({"email": user.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    # 2. Hash password and generate ID
     user_id = f"user_{int(time.time())}"
     hashed_password = get_password_hash(user.password)
     
-    # 3. Save the new user document to MongoDB
     new_user = {
         "email": user.email,
         "password": hashed_password,
@@ -84,13 +78,12 @@ async def register(user: AuthUser):
 
 @router.post("/login")
 async def login(user: AuthUser):
-    # 1. Fetch the user document from MongoDB
     db_user = await users_collection.find_one({"email": user.email})
     
-    # 2. Verify existence and password
     if not db_user or not verify_password(user.password, db_user["password"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
     
-    # 3. Generate JWT
     access_token = create_access_token(data={"sub": db_user["id"], "email": user.email})
+    
+    # Returns "token" just like your frontend is expecting
     return {"message": "Login successful!", "token": access_token, "userId": db_user["id"]}

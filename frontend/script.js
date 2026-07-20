@@ -11,7 +11,6 @@ const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// Your FastAPI Server URL
 const API_BASE_URL = 'https://ayush-gpt.onrender.com';
 let jwtToken = null;
 
@@ -20,7 +19,7 @@ window.onload = () => {
     const savedToken = localStorage.getItem('ayushgpt_token');
     if (savedToken) {
         jwtToken = savedToken;
-        loadChatHistory(); // Fetch MongoDB history first!
+        loadChatHistory(); 
     }
 };
 
@@ -73,7 +72,7 @@ logoutBtn.addEventListener('click', () => {
     jwtToken = null;
     chatApp.classList.add('hidden');
     loginScreen.classList.remove('hidden');
-    chatBox.innerHTML = ''; // Clear chat UI on logout
+    chatBox.innerHTML = ''; 
 });
 
 // --- CHAT & MEMORY LOGIC ---
@@ -93,7 +92,6 @@ function addMessage(text, sender) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Fetch 200-message history from MongoDB
 async function loadChatHistory() {
     try {
         const res = await fetch(`${API_BASE_URL}/chat/history`, {
@@ -102,24 +100,21 @@ async function loadChatHistory() {
         const data = await res.json();
 
         if (res.ok) {
-            chatBox.innerHTML = ''; // Clear box
-            chatBox.appendChild(typingIndicator); // Add indicator back
+            chatBox.innerHTML = ''; 
+            chatBox.appendChild(typingIndicator); 
 
-            // LangChain's messages_to_dict returns objects like { type: 'human', data: { content: '...' } }
             if (data.history && data.history.length > 0) {
                 data.history.forEach(msg => {
                     const sender = msg.type === 'human' ? 'user' : 'ai';
                     addMessage(msg.data.content, sender);
                 });
             } else {
-                addMessage("Hi", "ai");
+                addMessage("Hi, I am Ayush's AI Twin! How can I help you?", "ai");
             }
 
-            // Show chat screen
             loginScreen.classList.add('hidden');
             chatApp.classList.remove('hidden');
         } else {
-            // Token likely expired
             logoutBtn.click();
         }
     } catch (err) {
@@ -149,10 +144,11 @@ async function sendMessage() {
         const data = await response.json();
         typingIndicator.style.display = 'none';
         
-        if (data.status === 'success') {
+        // Fixed: The backend returns 'data.reply', not 'data.status'
+        if (response.ok && data.reply) {
             addMessage(data.reply, 'ai');
         } else {
-            addMessage("❌ Error: " + data.reply, 'ai');
+            addMessage("❌ Error: " + (data.detail || "Something went wrong"), 'ai');
         }
     } catch (error) {
         typingIndicator.style.display = 'none';
