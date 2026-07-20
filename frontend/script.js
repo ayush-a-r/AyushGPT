@@ -11,7 +11,7 @@ const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-const API_BASE_URL = 'https://ayush-gpt.onrender.com';
+const API_BASE_URL = 'https://ayushgpt1-hjkc.onrender.com';
 let jwtToken = null;
 
 // --- INITIALIZATION ---
