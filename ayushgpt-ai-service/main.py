@@ -105,8 +105,22 @@ async def chat_endpoint(request: ChatRequest, current_user: str = Depends(verify
             "context": context_text,
             "question": user_message
         })
-        return ChatResponse(reply=response.content)
+        
+        # --- FIX STARTS HERE ---
+        # Explicitly extract content and convert to string to ensure Pydantic doesn't fail
+        reply_content = response.content
+        
+        if isinstance(reply_content, list):
+            # If it's a list of blocks, join them into a single string
+            reply_text = "".join([block.get("text", "") if isinstance(block, dict) else str(block) for block in reply_content])
+        else:
+            reply_text = str(reply_content)
+        
+        return ChatResponse(reply=reply_text)
+        # --- FIX ENDS HERE ---
+        
     except Exception as e:
+        print(f"Chat Error: {e}") # Log the actual error for debugging
         raise HTTPException(status_code=500, detail=str(e))
 
 # Added this so your frontend's loadChatHistory doesn't hit a 404 error!
