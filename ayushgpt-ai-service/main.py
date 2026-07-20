@@ -48,7 +48,7 @@ app.include_router(auth_router)
 client = MongoClient(MONGO_URI)
 vector_collection = client.ayushgpt_db.vectors
 
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GOOGLE_API_KEY)
+embeddings = GoogleGenerativeAIEmbeddings(model="text-embedding-004", google_api_key=GOOGLE_API_KEY)
 vector_store = MongoDBAtlasVectorSearch(collection=vector_collection, embedding=embeddings, index_name="vector_index")
 retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 
