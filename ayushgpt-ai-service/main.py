@@ -35,7 +35,7 @@ app = FastAPI(title="AI Twin Backend")
 
 # Create a list of allowed frontend URLs
 origins = [
-    "https://your-custom-url.netlify.app" # TODO: Update this with your live Netlify URL later
+    "https://a-r-gpt.netlify.app" # TODO: Update this with your live Netlify URL later
 ]
 # CORS Configuration (Allows frontend to communicate with backend)
 app.add_middleware(
