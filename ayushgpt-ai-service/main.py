@@ -30,11 +30,8 @@ if not all([MONGO_URI, GOOGLE_API_KEY]):
 app = FastAPI(title="AI Twin Backend")
 
 # CORS Configuration
-origins = [
-    "https://a-r-gpt.netlify.app",
-    "http://localhost:5500",
-    "http://127.0.0.1:5500"
-]
+origins = "https://a-r-gpt.netlify.app"
+
 
 app.add_middleware(
     CORSMiddleware,
