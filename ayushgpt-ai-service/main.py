@@ -33,10 +33,14 @@ if not all([MONGO_URI, GOOGLE_API_KEY, SECRET_KEY]):
 # --- FastAPI Initialization ---
 app = FastAPI(title="AI Twin Backend")
 
+# Create a list of allowed frontend URLs
+origins = [
+    "https://your-custom-url.netlify.app" # TODO: Update this with your live Netlify URL later
+]
 # CORS Configuration (Allows frontend to communicate with backend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Secure this in production with your Netlify/Vercel URL
+    allow_origins=origins, 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
